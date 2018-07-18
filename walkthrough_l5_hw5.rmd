@@ -1,0 +1,56 @@
+---
+title: "Walkthrough for fifth homework"
+output: html_notebook
+---
+
+```{r}
+N = 10000
+r = 5
+s = 500
+
+c = matrix(rnorm(N*r), ncol = r)
+r = matrix(c(rnorm(s*r, mean = 3), rnorm((N-s)*r)), ncol = r, byrow = T)
+
+pv = sapply(1:nrow(c), function(i)t.test(c[i,],r[i,])$p.value)
+sum(pv[(s+1):N] < 0.05/sum(pv < 0.05)) #fdr
+hist(pv)
+
+pv.bh = p.adjust(pv, method = 'BH')
+pv.bo = p.adjust(pv, method = 'bo')
+
+sum(pv.bh[(s+1):N]<0.05/sum(pv.bh < 0.05))
+sum(pv.bo[(s+1):N]<0.05/sum(pv.bo < 0.05))
+
+max(pv[pv.bo < 0.05])
+dmean = sapply(1:nrow(c), function(i)mean(r[i,]) - mean(c[i,]))
+hist(dmean[pv.bh < 0.05], 20)
+pv.bh1 = pv.bh
+table(test1 = pv.bh1 < 0.05, test2 = pv.bh < 0.05)
+```
+
+```{r}
+d = read.table("co")
+d = sweep(d,2,apply(d,2,sum), '/') #use '/' for every cell
+d = as.matrix(d)
+table(apply(d,1,sum) == 0)
+d = d[apply(d,1,mean) > 0,] #could be 'var' instead of 'sum', or 'mean'
+dim(db)
+
+pv = apply(d,1,function(x)t.test(x[1:4], x[5:8])$p.value)
+pv.bh = p.adjust(pv, method = 'BH')
+sum(pv.bh<0.05)
+pv.thr = max(pv[pv.bh<0.05])
+comb = combn(1:8,4) #combinations for permutation of cols
+pv.sh = apply(comb[,1:10],2,function(s){
+    cat(1)
+    apply(d,1,function(x)t.test(x[s],x[-s])$p.value)
+})
+pv.sh.bh = apply(pv.sh,2,p.adjust,method = 'BH')
+apply(pv.sh.bh < 0.05,2,sum)
+sgn.cnt = apply(pv.sh <= pv.thr,2,sum)
+hist(sgn.cnt[-1]/sgn.cnt[1])
+```
+```{r}
+sapply(1:10,function(i)max(pv.sh[pv.sh.bh[,1]<0.05,i]))
+```
+

@@ -1,0 +1,21 @@
+d = rnorm(300)
+d
+plot(d)
+summary(d)
+hist(d)
+plot(density(d))
+x = -60:60/10
+summary(x)
+lines(dnorm(x),col='green')
+y = rnorm(length(d), mean = d+1, sd = abs(d))
+d = cbind(d,y)
+class(d)
+plot(d[,1],d[,2])
+abline(lm(d[,2]~d[,1]))
+par(mfrow = c(1,3))
+table(d[,1]>0)
+as.numeric(c('s', 1))
+a = list(1:3)
+typeof(z)
+a[[1]]
+z=c(0.5)
